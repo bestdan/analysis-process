@@ -1,0 +1,11 @@
+{
+  "name": "analysis-process",
+  "version": "0.1.0",
+  "description": "Conventions for auditable quantitative analysis — separation of narrative/models/data, input verification, reproducible pipelines.",
+  "author": {
+    "name": "Daniel Egan"
+  },
+  "homepage": "https://github.com/bestdan/analysis-process",
+  "repository": "https://github.com/bestdan/analysis-process",
+  "keywords": ["analysis", "data", "quantitative", "auditable", "pipeline"]
+}
