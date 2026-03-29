@@ -6,7 +6,10 @@
   "plugins": [
     {
       "name": "analysis-process",
-      "source": ".",
+      "source": {
+        "source": "url",
+        "url": "https://github.com/bestdan/analysis-process.git"
+      },
       "description": "Conventions for auditable quantitative analysis — separation of narrative/models/data, input verification, reproducible pipelines.",
       "version": "0.1.0",
       "keywords": ["analysis", "data", "quantitative", "auditable", "pipeline"],
