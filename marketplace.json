@@ -1,0 +1,16 @@
+{
+  "name": "analysis-process",
+  "owner": {
+    "name": "Daniel Egan"
+  },
+  "plugins": [
+    {
+      "name": "analysis-process",
+      "source": ".",
+      "description": "Conventions for auditable quantitative analysis — separation of narrative/models/data, input verification, reproducible pipelines.",
+      "version": "0.1.0",
+      "keywords": ["analysis", "data", "quantitative", "auditable", "pipeline"],
+      "license": "MIT"
+    }
+  ]
+}
