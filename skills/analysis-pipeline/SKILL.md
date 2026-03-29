@@ -1,7 +1,7 @@
 ---
-name: auditable-pipeline
-description: Reproducible analysis pipelines — separation of concerns between narrative and computation, input provenance, template-driven reports. Use when building analyses where numbers feed into decisions or reports.
-user-invocable: false
+name: analysis-pipeline
+description: Reproducible analysis pipelines — separation of narrative and computation, input provenance, document structure, template-driven reports. Use when building analyses where numbers feed into decisions, reports, or documents.
+user-invocable: true
 ---
 
 # Auditable Pipeline
@@ -12,26 +12,9 @@ user-invocable: false
 
 Structured analysis where numbers feed into decisions, reports, or ongoing models. Examples: financial projections, cost comparisons, capacity planning, scenario analysis.
 
-Does NOT apply to quick calculations or exploratory conversation. If the user asks "what's 20% of $500k?" just answer. If they ask "model my mortgage options over 30 years," this skill applies.
+Does NOT apply to quick calculations or exploratory conversation. If the user asks "what's 20% of $500k?" just answer.
 
-Rule of thumb: if the numbers might be referenced later or shared with someone else, use these conventions.
-
-## Separation of Concerns
-
-MUST NOT derive numbers in markdown files. Markdown is for narrative, decisions, qualitative analysis, system descriptions, assumptions, and open questions.
-
-MUST keep all derived numbers (calculations, savings, sensitivity) in a notebook or script. Markdown may show summary tables with max/realistic ranges but MUST reference the model for derivation.
-
-## Input Provenance
-
-Every value in an analysis is either an **input** or **derived**. Keep this distinction explicit.
-
-- **Inputs** MUST document their source (bill, spec sheet, calculator, regulation, assumption). Label them clearly in both markdown and code.
-- **Derived values** MUST be computed from inputs, never hardcoded after a one-time calculation. Use functions or lazy properties so they recalculate when inputs change.
-
-If an input is an assumption rather than a measured/sourced fact, say so — e.g., "assumed 5% annual rate increase (no source, revisit)."
-
-External parameters MUST include a source link or note (vendor URL, spec sheet, date checked) in code comments. Inputs without sources should be flagged as assumptions.
+Rule of thumb: if the analysis has more than ~3 variable inputs or produces a document, use these conventions.
 
 ## Pipeline Stages
 
@@ -46,9 +29,50 @@ For simple analyses, this can be as lightweight as a single script that prints r
 
 Scale the pipeline to the complexity of the analysis. A one-page cost comparison doesn't need four stages.
 
+## Input Provenance
+
+Every value in an analysis is either an **input** or **derived**. Keep this distinction explicit.
+
+- **Inputs** MUST document their source (bill, spec sheet, calculator, regulation, assumption). Label them clearly in both markdown and code.
+- **Derived values** MUST be computed from inputs, never hardcoded after a one-time calculation. Use functions or lazy properties so they recalculate when inputs change.
+
+If an input is an assumption rather than a measured/sourced fact, say so — e.g., "assumed 5% annual rate increase (no source, revisit)."
+
+External parameters MUST include a source link or note (vendor URL, spec sheet, date checked) in code comments. Inputs without sources should be flagged as assumptions.
+
+## Separation of Concerns
+
+MUST NOT derive numbers in markdown files. Markdown is for narrative, decisions, qualitative analysis, system descriptions, assumptions, and open questions.
+
+MUST keep all derived numbers (calculations, savings, sensitivity) in a notebook or script. Markdown may show summary tables with max/realistic ranges but MUST reference the model for derivation.
+
+## Document Structure
+
+When an analysis produces a narrative document (memo, recommendation, report):
+
+- **Executive summary first** with key numbers and outstanding decisions.
+- **Qualitative content** (why, how, what) in the markdown body.
+- **Data tables** rendered from model data via templates (not hand-written).
+- **Financial analysis sections** are brief: summary table with max/realistic, then a link to the model.
+- **Sources** as footnoted references in an appendix.
+
+Bad (numbers derived in markdown):
+> The system produces 817 kWh/month, saving $142/month.
+
+Good (reference to model):
+> See [model.py] for production estimates. Summary: 750-820 kWh/month,
+> $128-$145/month savings (sensitivity table in model).
+
+Bad (structure buries the conclusion):
+> We analyzed three vendors across 12 dimensions... [3 pages] ...Vendor B is recommended.
+
+Good (lead with the decision):
+> **Recommendation: Vendor B.** Best cost/reliability tradeoff at $X/mo.
+> See comparison model for full breakdown across 12 dimensions.
+
 ## Template-Driven Reports
 
-When an analysis produces a narrative document (memo, recommendation, report), use templates to keep numbers tied to the model.
+When an analysis produces a narrative document, use templates to keep numbers tied to the model.
 
 - **`.template.md` files** contain the document structure with two kinds of placeholders:
   - `{{key}}` — **data placeholders**, filled deterministically from the model's JSON output. These are reproducible: re-run the model, re-fill, get the same numbers.
@@ -75,12 +99,3 @@ Inputs, specs, rates, costs, and parameters belong in the model as named variabl
 - **Compatibility constraints**: when components must work together, document these as assertions or checks in the model
 
 This keeps data auditable, updatable in one place, and prevents drift between model and narrative.
-
-## Example
-
-Bad (numbers in markdown):
-> The system produces 817 kWh/month, saving $142/month.
-
-Good (reference to model):
-> See [model.py] for production estimates. Summary: 750-820 kWh/month,
-> $128-$145/month savings (sensitivity table in model).
