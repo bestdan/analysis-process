@@ -4,16 +4,11 @@ A Claude Code plugin that enforces conventions for auditable quantitative analys
 
 ## Install
 
+Add the marketplace, then install the plugin:
+
 ```sh
-claude plugin add bestdan/analysis-process
-```
-
-Or add it manually to your project's `.claude/settings.json`:
-
-```json
-{
-  "plugins": ["bestdan/analysis-process"]
-}
+/plugin marketplace add bestdan/analysis-process
+/plugin install analysis-process@analysis-process
 ```
 
 ## Skills
