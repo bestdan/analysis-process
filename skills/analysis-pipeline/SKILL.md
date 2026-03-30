@@ -16,6 +16,10 @@ Does NOT apply to quick calculations or exploratory conversation. If the user as
 
 Rule of thumb: if the analysis has more than ~3 variable inputs or produces a document, use these conventions.
 
+## Example
+
+See `example/` for a working pipeline (vendor cost comparison) that demonstrates all stages below. Use it as a structural reference when building new pipelines.
+
 ## Pipeline Stages
 
 The core principle: **every number in a final document must trace to either an input or a computation in the model — never to a one-time Claude response.** Re-running the pipeline should regenerate everything from current inputs.
