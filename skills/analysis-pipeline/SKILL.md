@@ -16,9 +16,16 @@ Does NOT apply to quick calculations or exploratory conversation. If the user as
 
 Rule of thumb: if the analysis has more than ~3 variable inputs or produces a document, use these conventions.
 
-## Example
+## Canonical Example
 
-See `example/` for a working pipeline (vendor cost comparison) that demonstrates all stages below. Use it as a structural reference when building new pipelines.
+`example/` contains the reference implementation. **Copy its structure when building new pipelines.** Specifically:
+
+- Copy `fill_templates.py` and adapt it (the placeholder resolution logic is reusable as-is)
+- Follow `model.py`'s pattern: inputs with source comments at top, derived values in the middle, structured JSON output at the bottom
+- Follow `memo.template.md`'s pattern: executive summary first, data tables with `{{dotted.key}}` placeholders, `{{narrative:*}}` for prose sections
+- Follow `model_output.json`'s structure: top-level `inputs` and `derived` sections, pre-formatted display values
+
+Do NOT search the repo for other implementations to use as reference. This example and the spec below are the complete specification. If the example doesn't cover a case, ask.
 
 ## Pipeline Stages
 
@@ -32,6 +39,53 @@ For simple analyses, this can be as lightweight as a single script that prints r
 4. **Narrate** (optional) pipes enriched templates through Claude CLI to fill prose sections
 
 Scale the pipeline to the complexity of the analysis. A one-page cost comparison doesn't need four stages.
+
+## Directory Layout
+
+Every pipeline lives in a single directory. Use this structure:
+
+```
+analysis-name/
+  model.py                  # computation — inputs, derived values, JSON output
+  model_output.json         # committed output of model.py
+  memo.template.md          # document with {{key}} and {{narrative:*}} placeholders
+  fill_templates.py         # deterministic placeholder replacement (copy from example/)
+  memo.filled.md            # committed output of fill_templates.py
+  inputs/                   # (optional) source data files the model reads
+```
+
+Naming: use `model.py` and `model_output.json` unless the pipeline has multiple models, in which case name them descriptively (e.g., `cost_model.py`, `cost_model_output.json`).
+
+## When to Use Plain Scripts vs Marimo
+
+- **Plain `.py` script** (default for pipelines): deterministic pipeline steps, one-shot computations, anything that writes JSON output for the template fill step.
+- **Marimo notebook**: exploratory analysis, interactive parameter tweaking, work that benefits from visible intermediate outputs. Not the default for pipelines — use when the user asks for interactivity or when the analysis is exploratory rather than producing a report.
+
+When building a pipeline that produces a document, always use a plain script for the model step.
+
+## JSON Output Schema
+
+The model's JSON output should follow this structure:
+
+```json
+{
+  "inputs": {
+    "section_name": {
+      "field": "value",
+      "source": "where this came from (URL, date checked)"
+    }
+  },
+  "derived": {
+    "section_name": {
+      "field": "$1,234.56"
+    }
+  }
+}
+```
+
+- Pre-format display values (currency, percentages, dates) in the JSON so the fill step is pure string substitution.
+- Use descriptive section names that match the template's placeholder paths (e.g., `derived.vendor_a.monthly_cost` maps to `{{derived.vendor_a.monthly_cost}}`).
+- Add additional top-level keys as needed (e.g., `recommendation`, `sensitivity`) — the fill script handles arbitrary nesting.
 
 ## Input Provenance
 
@@ -103,3 +157,18 @@ Inputs, specs, rates, costs, and parameters belong in the model as named variabl
 - **Compatibility constraints**: when components must work together, document these as assertions or checks in the model
 
 This keeps data auditable, updatable in one place, and prevents drift between model and narrative.
+
+## Running a Pipeline
+
+```sh
+# Step 1: compute the model
+uv run model.py
+
+# Step 2: fill data placeholders into the template
+uv run fill_templates.py
+
+# Step 3 (optional): fill narrative sections via Claude CLI
+cat memo.filled.md | claude -p "Fill in the {{narrative:*}} sections. Return the full document." > memo.final.md
+```
+
+Always use `uv run`, never bare `python`. Commit `model_output.json` and `memo.filled.md` so the outputs are auditable without re-running.
