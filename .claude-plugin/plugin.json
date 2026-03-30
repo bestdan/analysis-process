@@ -1,6 +1,6 @@
 {
   "name": "analysis-process",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Conventions for auditable quantitative analysis — separation of narrative/models/data, input verification, reproducible pipelines.",
   "author": {
     "name": "Daniel Egan"
