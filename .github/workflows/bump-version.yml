@@ -1,0 +1,53 @@
+name: Bump version on merge
+
+on:
+  push:
+    branches: [main]
+
+# Prevent concurrent bumps from racing
+concurrency:
+  group: version-bump
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+jobs:
+  bump:
+    runs-on: ubuntu-latest
+    # Skip commits made by this action to avoid infinite loops
+    if: github.actor != 'github-actions[bot]'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          # Use a token that can push and trigger workflows if needed
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Bump patch version
+        run: |
+          # Read current version from plugin.json (source of truth)
+          current=$(jq -r '.version' .claude-plugin/plugin.json)
+          echo "Current version: $current"
+
+          # Increment patch
+          IFS='.' read -r major minor patch <<< "$current"
+          new_version="$major.$minor.$((patch + 1))"
+          echo "New version: $new_version"
+
+          # Update both files
+          jq --arg v "$new_version" '.version = $v' .claude-plugin/plugin.json > tmp.json && mv tmp.json .claude-plugin/plugin.json
+          jq --arg v "$new_version" '.plugins[0].version = $v' .claude-plugin/marketplace.json > tmp.json && mv tmp.json .claude-plugin/marketplace.json
+
+          echo "new_version=$new_version" >> "$GITHUB_ENV"
+
+      - name: Commit and push
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add .claude-plugin/plugin.json .claude-plugin/marketplace.json
+          # Only commit if files actually changed (idempotent)
+          git diff --staged --quiet && echo "No version change needed" && exit 0
+          git commit -m "bump version to $new_version"
+          # Pull-rebase in case another merge landed between checkout and now
+          git pull --rebase origin main
+          git push
