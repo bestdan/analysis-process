@@ -51,6 +51,7 @@ The plugin provides two skills that activate automatically during analysis work,
 |---|---|---|
 | **analysis-pipeline** | `/analysis-pipeline` or auto when building report-producing analyses | Structures work as model -> template -> fill pipelines. Enforces input provenance, separation of narrative and computation, and reproducible output. |
 | **analysis-conventions** | Auto when writing notebooks or analysis scripts | Coding conventions: when to use plain scripts vs marimo, `uv run` for execution, scratchpad patterns, notebook structure. |
+| **review-facts** | `/review-facts` | Independent fact-check of a completed analysis. Runs as a separate agent: verifies links resolve, cited values match sources, output is reproducible, narrative numbers trace to the model, units/formulas are correct, and the recommendation matches the data. |
 
 ## Example
 
