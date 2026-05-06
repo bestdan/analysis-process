@@ -58,7 +58,7 @@ For every input whose comment cites a URL or document:
 ### 3. Output reproducibility
 
 - Re-run the pipeline (`uv run model.py`, `uv run fill_templates.py`, etc.).
-- Diff regenerated `model_output.json` against the committed copy. Diff regenerated `memo.filled.md` against the committed copy (excluding `{{narrative:*}}` sections, which are not deterministic).
+- Diff regenerated `model_output.json` against the committed copy (normalize with `jq -S .` if available, so key ordering or whitespace differences don't show as drift). Diff regenerated `memo.filled.md` against the committed copy (excluding `{{narrative:*}}` sections, which are not deterministic).
 - Any drift means the committed artifacts are stale relative to the code.
 
 ### 4. Numbers in the narrative trace to the model
@@ -73,7 +73,7 @@ For every input whose comment cites a URL or document:
 
 ### 6. Sources are fresh and labeled
 
-- For each input, check the "checked YYYY-MM-DD" stamp (or equivalent). Flag stamps older than 6 months, or any source whose page content has materially changed since the stamp.
+- For each input, check the "checked YYYY-MM-DD" stamp (or equivalent). Flag stamps older than 6 months, or any source whose own page metadata (a "last updated", "published", or version date on the source itself) is newer than the stamp.
 - Every input without a source MUST be explicitly labeled as an assumption. Unlabeled, unsourced inputs are a fail.
 
 ### 7. Recommendation matches the data
@@ -109,7 +109,7 @@ Reviewer: independent agent, <YYYY-MM-DD>
 ...
 ```
 
-Order findings critical-first. Be specific: file paths, line numbers, the cited value, the value found, the URL fetched, the date checked. A finding without evidence the user can re-verify is not useful.
+Order findings critical-first. **Critical** = the analysis would mislead a decision: cited values that don't match their sources, wrong recommendations, formula or unit errors, infeasible-system bugs, orphan numbers in the narrative. **Medium** = correctness is intact but trust is reduced: dead links, stale "checked" stamps, unlabeled assumptions, output drift. **Low** = cosmetic or easily fixable inconsistencies. Be specific: file paths, line numbers, the cited value, the value found, the URL fetched, the date checked. A finding without evidence the user can re-verify is not useful.
 
 ## What This Skill Does NOT Do
 
