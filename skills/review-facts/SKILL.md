@@ -45,6 +45,8 @@ Run every applicable check. For each, record `pass`, `fail`, or `n/a` with a one
 For every URL in source comments, model code, JSON `source` fields, and the filled document:
 
 - Fetch the URL (WebFetch, curl, or equivalent). Treat 4xx/5xx as failures. Treat redirects to login pages, parked domains, or unrelated content as failures.
+- For scheme-less citations (e.g. `nimbus.io/pricing` rather than `https://nimbus.io/pricing`), try `https://` then `http://` before flagging as broken.
+- For non-URL citations (local PDFs, internal docs, "vendor email 2025-11-12", spec sheets), confirm the file exists at the cited path or note that the source is offline-only and cannot be auto-verified — do not flag as a dead link.
 - Note the date you checked.
 
 ### 2. Cited values match their sources
@@ -58,8 +60,10 @@ For every input whose comment cites a URL or document:
 ### 3. Output reproducibility
 
 - Re-run the pipeline (`uv run model.py`, `uv run fill_templates.py`, etc.).
-- Diff regenerated `model_output.json` against the committed copy (normalize with `jq -S .` if available, so key ordering or whitespace differences don't show as drift). Diff regenerated `memo.filled.md` against the committed copy (excluding `{{narrative:*}}` sections, which are not deterministic).
-- Any drift means the committed artifacts are stale relative to the code.
+- Diff regenerated `model_output.json` against the committed copy (normalize with `jq -S .` if available, so key ordering or whitespace differences don't show as drift).
+- Diff regenerated `memo.filled.md` against the committed copy in full — `fill_templates.py` leaves `{{narrative:*}}` placeholders untouched, so the filled memo is deterministic.
+- If a separately-generated narrative-filled artifact exists (e.g. `memo.final.md` produced by piping `memo.filled.md` through Claude CLI), treat that one as nondeterministic: diff only the data-bearing portions, not the prose.
+- Any drift in the deterministic artifacts means the committed copies are stale relative to the code.
 
 ### 4. Numbers in the narrative trace to the model
 

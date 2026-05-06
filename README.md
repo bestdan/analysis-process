@@ -36,7 +36,7 @@ Now you can:
 - **Diff**: `git diff model_output.json` shows exactly what changed and why
 - **Trust**: no number exists in the document that isn't computed from a named, sourced input
 
-The plugin provides two skills that activate automatically during analysis work, or you can invoke the pipeline skill explicitly with `/analysis-pipeline`.
+The plugin provides skills that activate automatically during analysis work, plus user-invocable skills (`/analysis-pipeline`, `/review-facts`) you can call explicitly. See the table below.
 
 ## Install
 
