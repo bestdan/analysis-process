@@ -1,5 +1,16 @@
 # analysis-process
 
+> **Deprecated.** All skills from this plugin have moved to [`bestdan/workflow-skills`](https://github.com/bestdan/workflow-skills), which bundles them with `co-review` and `plan-with-docs`. Install that instead:
+>
+> ```sh
+> /plugin marketplace add bestdan/workflow-skills
+> /plugin install workflow-skills@workflow-skills
+> ```
+>
+> This repo is archived and will not receive updates.
+
+---
+
 A Claude Code plugin that makes AI-assisted analysis auditable and reproducible. It teaches Claude to separate narrative from computation, track where every number comes from, and produce pipelines you can re-run when inputs change.
 
 ## The Problem
